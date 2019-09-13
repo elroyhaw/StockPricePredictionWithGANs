@@ -1,7 +1,10 @@
-import tensorflow as tf
 import time
 import os
 import pandas as pd
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D, Conv1D
 from .feature import get_all_features
 
 def make_generator_model() -> tf.keras.models.Model:
@@ -9,6 +12,26 @@ def make_generator_model() -> tf.keras.models.Model:
 
 
 def make_discriminator_model() -> tf.keras.models.Model:
+    num_fc = 512
+
+    # ... other parts of the GAN
+    a = tf.constant([1.0, -0.5, 3.4, -2.1, 0.0, -6.5], dtype=tf.float32)
+    cnn_net = Sequential()
+    cnn_net.add(Conv1D(32, kernel_size=5, strides=2))
+    cnn_net.add(Activation(tf.nn.leaky_relu(a, alpha=0.01)))
+    cnn_net.add(Conv1D(64, kernel_size=5, strides=2))
+    cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.layers.batch_normalization())
+    cnn_net.add(Conv1D(128, kernel_size=5, strides=2))
+    cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.layers.batch_normalization())
+
+    # Add the two Fully Connected layers
+    cnn_net.add(tf.layers.dense(220, use_bias=False), tf.layers.batch_normalization(), tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.layers.dense(220, use_bias=False), Activation('relu'))
+    cnn_net.add(tf.layers.Dense(1))
+
+    print(cnn_net)
     return
 
 
@@ -79,3 +102,9 @@ if __name__ == '__main__':
     discriminator = make_discriminator_model()
     gan = GAN(generator, discriminator)
     gan.train(train_df, 1000)
+
+
+
+
+
+
