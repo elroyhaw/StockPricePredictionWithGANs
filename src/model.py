@@ -8,6 +8,10 @@ from .feature import get_all_features
 
 
 def make_generator_model() -> tf.keras.models.Model:
+    model = keras.Sequential()
+    model.add(keras.layers.LSTM(units=30, return_sequences=True, input_shape=(2, 2)))
+    model.add(keras.layers.Dense(units=1))
+    model.compile(optimizer='adam', loss='mean_squared_error')
     return
 
 
@@ -33,13 +37,6 @@ def make_discriminator_model() -> tf.keras.models.Model:
 
     print(cnn_net)
     return
-
-def generate_lstm():
-    model = keras.Sequential()
-    model.add(keras.layers.LSTM(units=30, return_sequences=True, input_shape=(2, 2)))
-    model.add(keras.layers.Dense(units=1))
-    model.compile(optimizer='adam', loss='mean_squared_error')
-    return model
 
 class GAN:
     def __init__(self, generator, discriminator):
@@ -102,10 +99,6 @@ class GAN:
 
 if __name__ == '__main__':
 
-    model = generate_lstm()
-    print(model.summary())
-
-    '''
     df = pd.read_pickle("../data/prices/AAPL.pkl")
     df = get_all_features(df)
     train_df, test_df = df[:int(df.shape[0])], df[int(df.shape[0]):]
@@ -113,7 +106,7 @@ if __name__ == '__main__':
     discriminator = make_discriminator_model()
     gan = GAN(generator, discriminator)
     gan.train(train_df, 1000)
-    '''
+
 
 
 
