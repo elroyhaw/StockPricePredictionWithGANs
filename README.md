@@ -1,1 +1,1 @@
-# StockPricePredictionWithGANs
+# Stock Price Prediction With GANs

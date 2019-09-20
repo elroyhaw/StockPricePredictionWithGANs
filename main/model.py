@@ -1,18 +1,16 @@
 import time
 import os
 import pandas as pd
-import numpy as np
 import tensorflow as tf
-import tensorflow.keras as keras
-from .feature import get_all_features
+from main.feature import get_all_features
 
 
 def make_generator_model() -> tf.keras.models.Model:
-    model = keras.Sequential()
-    model.add(keras.layers.LSTM(units=30, return_sequences=True, input_shape=(2, 2)))
-    model.add(keras.layers.Dense(units=1))
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.LSTM(units=30, return_sequences=True, input_shape=(2, 2)))
+    model.add(tf.keras.layers.Dense(units=1))
     model.compile(optimizer='adam', loss='mean_squared_error')
-    return
+    return model
 
 
 def make_discriminator_model() -> tf.keras.models.Model:
@@ -20,13 +18,13 @@ def make_discriminator_model() -> tf.keras.models.Model:
 
     # ... other parts of the GAN
     a = tf.constant([1.0, -0.5, 3.4, -2.1, 0.0, -6.5], dtype=tf.float32)
-    cnn_net = keras.Sequential()
-    cnn_net.add(keras.Conv1D(32, kernel_size=5, strides=2))
-    cnn_net.add(keras.Activation(tf.nn.leaky_relu(a, alpha=0.01)))
-    cnn_net.add(keras.Conv1D(64, kernel_size=5, strides=2))
+    cnn_net = tf.keras.Sequential()
+    cnn_net.add(tf.keras.layers.Conv1D(32, kernel_size=5, strides=2))
+    cnn_net.add(tf.keras.layers.Activation(tf.nn.leaky_relu(a, alpha=0.01)))
+    cnn_net.add(tf.keras.layers.Conv1D(64, kernel_size=5, strides=2))
     cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
     cnn_net.add(tf.layers.batch_normalization())
-    cnn_net.add(keras.Conv1D(128, kernel_size=5, strides=2))
+    cnn_net.add(tf.keras.layers.Conv1D(128, kernel_size=5, strides=2))
     cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
     cnn_net.add(tf.layers.batch_normalization())
 
@@ -35,8 +33,8 @@ def make_discriminator_model() -> tf.keras.models.Model:
     cnn_net.add(tf.layers.dense(220, use_bias=False), keras.Activation('relu'))
     cnn_net.add(tf.layers.Dense(1))
 
-    print(cnn_net)
-    return
+    return cnn_net
+
 
 class GAN:
     def __init__(self, generator, discriminator):
@@ -98,7 +96,6 @@ class GAN:
 
 
 if __name__ == '__main__':
-
     df = pd.read_pickle("../data/prices/AAPL.pkl")
     df = get_all_features(df)
     train_df, test_df = df[:int(df.shape[0])], df[int(df.shape[0]):]
