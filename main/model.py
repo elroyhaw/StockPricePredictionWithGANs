@@ -17,21 +17,22 @@ def make_discriminator_model() -> tf.keras.models.Model:
     num_fc = 512
 
     # ... other parts of the GAN
-    a = tf.constant([1.0, -0.5, 3.4, -2.1, 0.0, -6.5], dtype=tf.float32)
+    #a = tf.constant([1.0, -0.5, 3.4, -2.1, 0.0, -6.5], dtype=tf.float32)
     cnn_net = tf.keras.Sequential()
-    cnn_net.add(tf.keras.layers.Conv1D(32, kernel_size=5, strides=2))
-    cnn_net.add(tf.keras.layers.Activation(tf.nn.leaky_relu(a, alpha=0.01)))
-    cnn_net.add(tf.keras.layers.Conv1D(64, kernel_size=5, strides=2))
-    cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
-    cnn_net.add(tf.layers.batch_normalization())
-    cnn_net.add(tf.keras.layers.Conv1D(128, kernel_size=5, strides=2))
-    cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
-    cnn_net.add(tf.layers.batch_normalization())
+    cnn_net.add(tf.keras.layers.Conv1D(20, kernel_size=5, strides=2, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
+    #cnn_net.add(tf.keras.layers.Activation(tf.nn.leaky_relu(a, alpha=0.01)))
+    cnn_net.add(tf.keras.layers.Conv1D(64, kernel_size=5, strides=2, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
+    #cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.keras.layers.BatchNormalization())
+    cnn_net.add(tf.keras.layers.Conv1D(128, kernel_size=5, strides=2, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
+    #cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.keras.layers.BatchNormalization())
 
     # Add the two Fully Connected layers
-    cnn_net.add(tf.layers.dense(220, use_bias=False), tf.layers.batch_normalization(), tf.nn.leaky_relu(alpha=0.01))
-    cnn_net.add(tf.layers.dense(220, use_bias=False), keras.Activation('relu'))
-    cnn_net.add(tf.layers.Dense(1))
+    ##tf.keras.layers.BatchNormalization(),
+    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
+    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation = 'relu'))
+    cnn_net.add(tf.keras.layers.Dense(1))
 
     return cnn_net
 
