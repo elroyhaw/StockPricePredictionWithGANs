@@ -5,35 +5,24 @@ import tensorflow as tf
 from main.feature import get_all_features
 
 
-def make_generator_model() -> tf.keras.models.Model:
+def make_generator_model(input_dim, output_dim, feature_size) -> tf.keras.models.Model:
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.LSTM(units=30, return_sequences=True, input_shape=(2, 2)))
-    model.add(tf.keras.layers.Dense(units=1))
+    model.add(tf.keras.layers.LSTM(units=30, return_sequences=True, input_shape=(input_dim, feature_size)))
+    model.add(tf.keras.layers.Dense(units=output_dim))
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
 
 
-def make_discriminator_model() -> tf.keras.models.Model:
-    num_fc = 512
-
-    # ... other parts of the GAN
-    #a = tf.constant([1.0, -0.5, 3.4, -2.1, 0.0, -6.5], dtype=tf.float32)
+def make_discriminator_model(input_dim) -> tf.keras.models.Model:
     cnn_net = tf.keras.Sequential()
-    cnn_net.add(tf.keras.layers.Conv1D(20, kernel_size=5, strides=2, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
-    #cnn_net.add(tf.keras.layers.Activation(tf.nn.leaky_relu(a, alpha=0.01)))
-    cnn_net.add(tf.keras.layers.Conv1D(64, kernel_size=5, strides=2, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
-    #cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.keras.layers.Conv1D(input_dim, kernel_size=5, strides=2, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
+    cnn_net.add(tf.keras.layers.Conv1D(64, kernel_size=5, strides=2, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
     cnn_net.add(tf.keras.layers.BatchNormalization())
-    cnn_net.add(tf.keras.layers.Conv1D(128, kernel_size=5, strides=2, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
-    #cnn_net.add(tf.nn.leaky_relu(alpha=0.01))
+    cnn_net.add(tf.keras.layers.Conv1D(128, kernel_size=5, strides=2, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
     cnn_net.add(tf.keras.layers.BatchNormalization())
-
-    # Add the two Fully Connected layers
-    ##tf.keras.layers.BatchNormalization(),
-    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation = tf.keras.layers.LeakyReLU(alpha=0.01)))
-    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation = 'relu'))
+    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
+    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation='relu'))
     cnn_net.add(tf.keras.layers.Dense(1))
-
     return cnn_net
 
 
@@ -45,7 +34,7 @@ class GAN:
         self.generator_optimizer = tf.keras.optimizers.Adam(1e-4)
         self.discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
         self.batch_size = 32
-        self.noise_dim = 100
+        self.noise_dim = 20
         checkpoint_dir = '../training_checkpoints'
         self.checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
         self.checkpoint = tf.train.Checkpoint(generator_optimizer=self.generator_optimizer,
@@ -100,8 +89,11 @@ if __name__ == '__main__':
     df = pd.read_pickle("../data/prices/AAPL.pkl")
     df = get_all_features(df)
     train_df, test_df = df[:int(df.shape[0])], df[int(df.shape[0]):]
-    generator = make_generator_model()
-    discriminator = make_discriminator_model()
+    input_dim = 20
+    output_dim = 1
+    feature_size = df.shape[1]
+    generator = make_generator_model(input_dim, output_dim, feature_size)
+    discriminator = make_discriminator_model(input_dim)
     gan = GAN(generator, discriminator)
     gan.train(train_df, 1000)
 
