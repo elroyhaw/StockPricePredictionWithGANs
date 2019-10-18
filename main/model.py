@@ -3,26 +3,26 @@ import os
 import pandas as pd
 import tensorflow as tf
 from main.feature import get_all_features
-
+from tensorflow.keras.layesr import Sequential, LSTM, Dense, Conv1D, BatchNormalization, LeakyReLU
 
 def make_generator_model(input_dim, output_dim, feature_size) -> tf.keras.models.Model:
-    model = tf.keras.Sequential()
-    model.add(tf.keras.layers.LSTM(units=30, return_sequences=True, input_shape=(input_dim, feature_size)))
-    model.add(tf.keras.layers.Dense(units=output_dim))
+    model = Sequential()
+    model.add(LSTM(units=30, return_sequences=True, input_shape=(input_dim, feature_size)))
+    model.add(Dense(units=output_dim))
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
 
 
 def make_discriminator_model(input_dim) -> tf.keras.models.Model:
     cnn_net = tf.keras.Sequential()
-    cnn_net.add(tf.keras.layers.Conv1D(input_dim, kernel_size=5, strides=2, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
-    cnn_net.add(tf.keras.layers.Conv1D(64, kernel_size=5, strides=2, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
-    cnn_net.add(tf.keras.layers.BatchNormalization())
-    cnn_net.add(tf.keras.layers.Conv1D(128, kernel_size=5, strides=2, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
-    cnn_net.add(tf.keras.layers.BatchNormalization())
-    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation=tf.keras.layers.LeakyReLU(alpha=0.01)))
-    cnn_net.add(tf.keras.layers.Dense(220, use_bias=False, activation='relu'))
-    cnn_net.add(tf.keras.layers.Dense(1))
+    cnn_net.add(Conv1D(input_dim, kernel_size=5, strides=2, activation=LeakyReLU(alpha=0.01)))
+    cnn_net.add(Conv1D(64, kernel_size=5, strides=2, activation=LeakyReLU(alpha=0.01)))
+    cnn_net.add(BatchNormalization())
+    cnn_net.add(Conv1D(128, kernel_size=5, strides=2, activation=LeakyReLU(alpha=0.01)))
+    cnn_net.add(BatchNormalization())
+    cnn_net.add(Dense(220, use_bias=False, activation=LeakyReLU(alpha=0.01)))
+    cnn_net.add(Dense(220, use_bias=False, activation='relu'))
+    cnn_net.add(Dense(1))
     return cnn_net
 
 
